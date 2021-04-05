@@ -1,1 +1,1 @@
-# mp13_lab_plex
+[![Build Status](https://travis-ci.org/Draonsnom/mp13_lab_plex.svg?branch=main)](https://travis-ci.org/Draonsnom/mp13_lab_plex)
