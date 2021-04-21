@@ -6,25 +6,18 @@ protected:
 	std::vector<TBase*> mas;
 
 public:
-	TCanvas();
-	void Print();
-	void AddObj(TBase* a);
-};
-
-TCanvas::TCanvas() {
-
-}
-
-void TCanvas::Print()
-{
-	for (int i = 0; i < mas.size(); i++)
+	TCanvas() {};
+	void Print()
 	{
-		mas[i]->Print();
-		std::cout << "\n\n";
+		for (int i = 0; i < mas.size(); i++)
+		{
+			mas[i]->Print();
+			std::cout << "\n\n";
+		}
 	}
-}
 
-void TCanvas::AddObj(TBase* a)
-{
-	mas.push_back(a);
-}
+	void AddObj(TBase* a)
+	{
+		mas.push_back(a);
+	}
+};

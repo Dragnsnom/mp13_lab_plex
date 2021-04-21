@@ -1,11 +1,13 @@
-﻿#pragma once
+#pragma once
 #include "TBase.h"
 #include "TPoint.h"
 #include "TLine.h"
 #include "TSquare.h"
 #include "TCanvas.h"
+#include "Stack.h"
+
 #include <string>
-#include <cstring>
+#include <iostream>
 
 class TPlex : public TBase {
 protected:
@@ -25,7 +27,7 @@ public:
 
 	virtual TBase* GetChild(int i);
 	virtual void SetChild(TBase* c, int i);
-	virtual TBase* PrintAll(TBase* p);
+	virtual TBase* PrintAll();
 	TBase* GetLeft();
 	TBase* GetRight();
 
@@ -42,6 +44,8 @@ public:
 	}
 
 	virtual TBase* Clone();
+
+	friend std::ostream& operator<<(std::ostream& out, const TPlex& _plex);
 };
 
 TPlex::TPlex() 
@@ -76,13 +80,13 @@ TPlex::TPlex(char* s)
 
 	if (numbers % 2 != 0 && numbers < 4)
 	{
-		throw -1;
+		throw - 1;
 	}
 
-	double* array = new double[numbers]; 
+	double* array = new double[numbers];
 	std::string n = "";
-    j = 0;
-    numbers = 0;
+	j = 0;
+	numbers = 0;
 
 	for (int i = 0; i < cc; i++)
 	{
@@ -134,18 +138,13 @@ TPlex::TPlex(const TPlex& p)
 
 void TPlex::Print()
 {
-	PrintAll(0);
+	PrintAll();
 };
 
-TBase* TPlex::PrintAll(TBase* p)
+TBase* TPlex::PrintAll()
 {
-	TBase* p1 = left->PrintAll(0);
-	TBase* p2 = right->PrintAll(0);
-	std::cout << "Plex: " << std::endl;
-	p1->Print();
-	p2->Print();
-	std::cout << std::endl;
-	return p2;
+	std::cout << *this << "\n";
+	return 0;
 }
 
 double TPlex::GetVal(int i) {
@@ -211,37 +210,114 @@ void TPlex::SetRight(TBase* x)
 }
 bool TPlex::AddLine(TPoint* a, TPoint* b)
 {
-	TPlex* l = GetLeftPlex();
-	bool isAdd = false;
-	if (l != 0)
-		isAdd = l->AddLine(a, b);
-	else
-	{
-		if (left == a)
-		{
-			left = new TPlex(b, a);
-			return true;
-		}
-	}
-	if (isAdd)
-		return isAdd;
+	TStack<TBase*> stack(25);
+	stack.Put(this);
+	bool res = false;
 
-	TPlex* r = GetRightPlex();
-	isAdd = false;
-	if (r != 0)
-		isAdd = r->AddLine(a, b);
-	else
+	while (!stack.IsEmpty())
 	{
-		if (right->GetVal(0) == a->GetX0() && right->GetVal(1) == a->GetX1())
+
+		TBase* top = stack.Get();
+		TBase* right = top->GetChild(0);
+		TBase* left = top->GetChild(1);
+
+
+		if (right->GetChildCount() != 0)
 		{
-			right = new TPlex(b, a);
-			return true;
+			stack.Put(right);
+		} 
+		else if (right == a)
+		{
+
+			TPlex* new_plex = new TPlex(a, b);
+			top->SetChild(new_plex, 0);
+			res = true;
+			break;
+		}
+
+
+		if (left->GetChildCount() != 0)
+		{
+			stack.Put(left);
+		} 
+		else if (left == b)
+		{
+
+			TPlex* new_plex = new TPlex(b, a);
+			top->SetChild(new_plex, 1);
+			res = true;
+			break;
 		}
 	}
-	return isAdd;
+	return res;
 }
 
 TBase* TPlex::Clone()
 {
 	return new TPlex(*this);
+}
+
+std::ostream& operator<<(std::ostream& out, const TPlex& _plex)
+{
+	TBase* base = const_cast<TPlex*>(&_plex);
+	TPoint* point_first = NULL;
+	TPoint* point_second = NULL;
+
+	TStack<TBase*> stack(100);
+	stack.Put(base);
+
+	while (!stack.IsEmpty())
+	{
+		base = stack.Get();
+
+		while (point_first == NULL)
+		{
+			TBase* base_left = base->GetChild(0);
+			TPlex* plex = dynamic_cast<TPlex*>(base_left);
+			if (plex == NULL)
+			{
+				point_first = dynamic_cast<TPoint*>(base_left);
+			}
+			else
+			{
+				stack.Put(base);
+				base = base_left;
+			}
+		}
+
+		while (point_second == NULL)
+		{
+			TBase* base_right = base->GetChild(1);
+			TPlex* plex = dynamic_cast<TPlex*>(base_right);
+
+			if (plex == NULL)
+			{
+				point_second = dynamic_cast<TPoint*>(base_right);
+			}
+			else
+			{
+				stack.Put(base);
+				base = base_right;
+			}
+		}
+
+		if (point_first != NULL && point_second != NULL) 
+		{
+			out << "Plex: " << "\n";
+			out << "Point left: " << *point_first << "\n";
+			out << "Point right: " << *point_second << "\n\n";
+
+			TBase* base_temp = point_second;
+			
+			if (!stack.IsEmpty()) 
+			{
+				base = stack.Get(); 
+
+				point_second = NULL;
+				point_first = NULL;
+				
+			}
+		}
+	}
+	return out;
 }

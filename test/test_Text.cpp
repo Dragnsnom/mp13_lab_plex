@@ -1,5 +1,6 @@
 #include <gtest.h>
-#include <TPlex.h>
+#include "TPlex.h"
+#include "Stack.h"
 
 TEST(TPlex, can_create_empty_plex) 
 {
@@ -116,8 +117,10 @@ TEST(Print, can_use_print_to_point)
 
 TEST(Print, can_use_print_to_plex)
 {
-	TPoint a(12, 23);
+	TPoint a(12, 23 );
 	TPoint b(34, 45);
+	TPoint c(34, 45);
+	TPoint d(34, 45);
 
 	TPlex q(&a, &b);
 	ASSERT_NO_THROW(q.Print());
@@ -125,7 +128,7 @@ TEST(Print, can_use_print_to_plex)
 
 TEST(Print, can_use_print_to_plex_char)
 {
-	char* s = "12, 23, 33, 45, 77, 88";
+	char* s = "12, 23, 33, 45";
 
 	TPlex q(s);
 	ASSERT_NO_THROW(q.Print());

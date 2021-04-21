@@ -17,7 +17,7 @@ public:
 		return 0;
 	}
 
-	virtual TBase* PrintAll(TBase* p) {
+	virtual TBase* PrintAll() {
 		return this;
 	}
 
